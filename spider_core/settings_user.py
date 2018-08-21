@@ -1,8 +1,7 @@
 MONGODB_CONF = {
-    'server'    : 'localhost',
-    'port'      : 27017,
-    'db'        : 'crawlers',
-    'collection': 'news'
+    'server': 'localhost',
+    'port'  : 27017,
+    'db'    : 'crawlers'
 }
 MYSQL_CONF = {
     'server'  : '127.0.0.1',
@@ -17,6 +16,7 @@ REDIS_CONF = {
     'host': '127.0.0.1',
     'port': 6379
 }
+
 USER_AGENT_CHOICES = [
     'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0',
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36',

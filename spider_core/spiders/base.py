@@ -5,6 +5,7 @@ from scrapy import Request, signals
 from scrapy.spiders import CrawlSpider
 
 from spider_core.util.login import login_handler
+from spider_core.util.mongo_db import MongodHelper
 from spider_core.util.mysql_db import MySqlHelper
 from spider_core.util.spider_enum import SpiderTypeEnum
 
@@ -13,7 +14,8 @@ class BaseSpider(CrawlSpider):
     name = 'test'
     # allowed_domains = ['example.com']
     # start_urls = ['http://baidu.com']
-    mysqlhelper = MySqlHelper()
+    mysql_helper = MySqlHelper()
+    mongod_helper = MongodHelper()
 
     def __init__(self, **kwargs):
 
@@ -60,8 +62,9 @@ class BaseSpider(CrawlSpider):
         if spider_id <= 0:
             raise Exception("spider_id arg invaild.")
         # cls.custom_settings = {'ROBOTSTXT_OBEY': False}
-        setting = cls.mysqlhelper.get_setting_by_id(spider_id)
+        setting = cls.mysql_helper.get_setting_by_id(spider_id)
         cls.spider_id = spider_id
+        cls.spider_name = 'spider_{}'.format(setting.get('Name'))
         cls.spider_settings = setting
         cls.allowed_domains = setting.get('Domains') if setting.get('AllowedDomain') else []
 
@@ -76,7 +79,7 @@ class BaseSpider(CrawlSpider):
         if setting.get('IsLogin'):
             login_url, login_args = setting.get('LoginUrl'), setting.get('LoginArgs')
             kwargs['cookies'] = login_handler(login_url, login_args)
-        urls = self.mysqlhelper.get_urls_by_id(self.spider_id)
+        urls = self.mysql_helper.get_urls_by_id(self.spider_id)
         for url in urls:
             kwargs['encoding'] = url.get('RequestEncoding') or kwargs.get('encoding')
             kwargs['method'] = url.get('RequestMethod') or kwargs.get('method')
@@ -90,11 +93,12 @@ class BaseSpider(CrawlSpider):
         print('spider_opened spider.name', spider.name)
 
     def spider_closed(self, spider):
-        self.mysqlhelper.close()
+        self.mysql_helper.close()
+        self.mongod_helper.close()
         print('spider_closed spider.name', spider.name)
 
     def parse(self, response):
-        print('meta', response.meta)
+        print('text', response.text)
 
     def parse_list(self, response):
         pass
