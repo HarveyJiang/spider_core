@@ -54,6 +54,8 @@ def login_handler(login_url, login_args):
 
 
 if __name__ == '__main__':
-    c = login_handler('', '')
+    # c = login_handler('', '')
     # a = requests.get('https://order.jd.com/center/list.action', cookies=c)
     # print(a.text)
+    print('.//aa'.lstrip('/'))
+    print(type({}))

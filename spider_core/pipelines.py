@@ -19,6 +19,7 @@ class SpiderCorePipeline(object):
 class SpiderCoreMongoDBPipeline(object):
 
     def process_item(self, item, spider):
+        print('dddddddddd', type(item))
         spider.mongod_helper.insert_documents(item, spider.spider_name)
         return item
 

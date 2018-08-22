@@ -8,13 +8,13 @@ from enum import Enum, unique
 @unique
 class SpiderTypeEnum(Enum):
     # 列表页面
-    LIST_PAGE = 1
+    LIST_PAGE = 0
     # 单页面
-    SINGE_PAGE = 2
+    SINGE_PAGE = 1
     # Link
-    LINK_PAGE = 3
+    LINK_PAGE = 2
     # API
-    API = 4
+    API = 3
 
 
 # print(Method.GET.value) --> get

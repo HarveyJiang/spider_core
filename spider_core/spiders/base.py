@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import sys
 
 from scrapy import Request, signals
@@ -27,9 +28,7 @@ class BaseSpider(CrawlSpider):
             'method'     : 'GET',
             'callback'   : self.parse_list if self.is_list_page else self.parse,
             'meta'       : {
-                'cookiejar'    : self.spider_id,
-                # 解析 response 内容xpath
-                'fields_params': None
+                'cookiejar': self.spider_id,
             },
             'encoding'   : 'utf-8',
             'dont_filter': False,
@@ -83,9 +82,13 @@ class BaseSpider(CrawlSpider):
         for url in urls:
             kwargs['encoding'] = url.get('RequestEncoding') or kwargs.get('encoding')
             kwargs['method'] = url.get('RequestMethod') or kwargs.get('method')
-            fields_params = url.get('FieldsParams')
-            if fields_params:
-                kwargs.get('meta').update({'fields_params': fields_params})
+            info = {
+                'list_fields'  : json.loads(url.get('ListFields')),
+                'detail_fields': json.loads(url.get('DetailFields')),
+                'list_info'    : json.loads(url.get('ListInfo')),
+                'page_info'    : json.loads(url.get('PageInfo'))
+            }
+            kwargs.get('meta').update(info)
             yield self.builder_request(url.get('Url'), **kwargs)
         # yield Request('http://www.baidu.com', dont_filter=True)
 
@@ -98,16 +101,42 @@ class BaseSpider(CrawlSpider):
         print('spider_closed spider.name', spider.name)
 
     def parse(self, response):
-        print('text', response.text)
+        meta = response.meta
+        list_item = meta.get('list_item')
+        detail_fields = meta.get('detail_fields')
+        for k, v in detail_fields.items():
+            list_item[k] = ''.join(response.xpath(v).extract()).strip()
+        yield list_item
 
     def parse_list(self, response):
+        meta = response.meta.copy()
+        list_info = meta.pop('list_info')
+        list_fields = meta.pop('list_fields')
+        page_info = meta.pop('page_info')
+        list = response.xpath(list_info.get('listXpath'))
+
+        # response.xpath('//parent').xpath('string(.//a)')  “.” 表示相对上个xpath
+        # response.xpath('//parent//a//text()')
+        for item in list:
+            list_item = {}
+            detail_meta = meta
+            detail_url = item.xpath(list_info.get('detailXpath')).extract_first().strip()
+            for k, v in list_fields.items():
+                list_item[k] = ''.join(item.xpath(v).extract()).strip()
+            detail_meta.update({'list_item': list_item})
+            yield Request(detail_url, meta=detail_meta, dont_filter=True)
+
+        if page_info:
+            yield self.find_next_page(page_info, meta)
+
+    def find_next_page(self, page_info, meta):
         pass
 
     def spider_error(self, failure):
         pass
 
     def builder_request(self, url, **kwargs):
-        print('kws...', kwargs)
+        print('builder_request kwargs:', kwargs)
         return Request(url, **kwargs)
         # request = Request(url, method='POST',
         #                   body=json.dumps({}),

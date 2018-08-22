@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # __create:2017/9/15 23:16
-import collections
 
 import pymongo
 from scrapy.conf import settings
@@ -30,9 +29,11 @@ class MongodHelper(object):
             pass
 
     def insert_documents(self, documents, collection_name='default'):
-        if isinstance(documents, collections.Iterable):
+        if isinstance(documents, list):
+            print('collections.Iterable')
             self.db.get_collection(collection_name).insert_many(documents)
         elif isinstance(documents, dict):
+            print('dict.dict')
             self.db.get_collection(collection_name).insert(documents)
         else:
             raise Exception("not support type insert mongo")

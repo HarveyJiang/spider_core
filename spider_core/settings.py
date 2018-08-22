@@ -74,7 +74,8 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'spider_core.pipelines.SpiderCorePipeline': 300,
+    'spider_core.pipelines.SpiderCorePipeline'       : 300,
+    'spider_core.pipelines.SpiderCoreMongoDBPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
