@@ -17,6 +17,14 @@ class SpiderTypeEnum(Enum):
     API = 3
 
 
+@unique
+class SpiderStatusEnum(Enum):
+    NEW = 0
+    WATING = 1
+    RUNNING = 2
+    STOP = 3
+    FINISHED = 4
+    EXCEPTION = 5
+
 # print(Method.GET.value) --> get
 # print(Method.GET.name) --> GET
-
